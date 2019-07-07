@@ -1,0 +1,91 @@
+#include <LiquidCrystal.h>
+
+const int pingPin = 13;
+const int rs = 11, en = 9, d4 = 2, d5 = 3, d6 = 4, d7 = 5;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+bool piezo = false;
+bool stop = false;
+
+void setup()
+{
+  Serial.begin(9600);
+  lcd.begin(16, 2);
+  pinMode(12, OUTPUT); 
+}
+
+void loop()
+{
+    
+    long duration;
+  	double cm;
+  double m;
+  int last;
+  pinMode(pingPin, OUTPUT);
+  digitalWrite(pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(pingPin, LOW);
+  pinMode(pingPin, INPUT);
+  duration = pulseIn(pingPin, HIGH);
+  cm = (duration/29)/2;
+  
+  	if(cm < 15)
+    {
+      if(last = 0 || 1 || stop == true)
+      {
+      lcd.clear();
+      last = 0;
+
+      lcd.setCursor(0, 0);
+      lcd.print("STOP");
+      delay(50);
+      }
+    }
+    if(last == 0 && stop == true)
+    {
+       lcd.clear();
+       lcd.print("STOP");
+       lcd.setCursor(0, 0);
+       delay(50);
+    }
+   if(cm >= 16 && cm <= 279)
+   	{
+     lcd.clear();
+     last = 1;
+
+     if(cm <= 50)
+     {
+       lcd.setCursor(0, 1);
+       lcd.print("!Too Close!");
+       lcd.setCursor(0, 0);
+       lcd.print(cm);
+  	   lcd.print("cm");
+       stop = true;
+       pinMode(12,HIGH);
+       tone(12, 1000);
+     }
+     else
+     {
+       lcd.print(cm);
+       lcd.print("cm");
+       stop = false;
+       pinMode(12, LOW);
+     }
+     delay(50);
+   	}
+  if(cm >= 280 && stop == false)
+   	 {
+       lcd.clear();
+       last = 2;
+       lcd.setCursor(0, 0);
+       lcd.print("Sector Clear!");
+       stop = false;
+     }
+} 
+  
+  
+  
+  
+  
+  
